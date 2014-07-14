@@ -3,6 +3,7 @@
 
 import sys
 import wave
+import logging
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -18,10 +19,59 @@ class VoiceText(object):
         self._auth = HTTPBasicAuth(user_name, password)
         self._data = {'speaker': speaker}
 
+    def speaker(self, speaker):
+        if speaker in ['show', 'haruka', 'hikari', 'takeru']:
+            self._data['speaker'] = speaker
+        else:
+            logging.warning('Unknown speaker: %s' % str(speaker))
+
+        return self
+
+    def emotion(self, emotion, level=1):
+        if emotion in ['happiness', 'anger', 'sadness']:
+            self._data['emotion'] = emotion
+            if isinstance(level, int) and 1 <= level <= 2:
+                self._data['emotion_level'] = level
+        else:
+            logging.warning('Unknown emotion: %s' % str(emotion))
+
+        return self
+
+    def pitch(self, pitch):
+        if isinstance(pitch, int):
+            if pitch < 50:
+                pitch = 50
+            elif 200 < pitch:
+                pitch = 200
+            self._data['pitch'] = pitch
+
+        return self
+
+    def speed(self, speed):
+        if isinstance(speed, int):
+            if speed < 50:
+                speed = 50
+            elif 400 < speed:
+                speed = 400
+            self._data['speed'] = speed
+
+        return self
+
+    def volume(self, volume):
+        if isinstance(volume, int):
+            if volume < 50:
+                volume = 50
+            elif 200 < volume:
+                volume = 200
+            self._data['volume'] = volume
+
+        return self
+
     def to_wave(self, text):
         self._data['text'] = text
+        logging.debug('Post: %s' % str(self._data))
         request = requests.post(self.URL, self._data, auth=self._auth)
-        print request.status_code
+        logging.debug('Status: %d' % request.status_code)
         return request.content
 
     def speak(self, text):
