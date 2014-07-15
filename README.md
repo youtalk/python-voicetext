@@ -20,4 +20,6 @@ Usage
 $ ipython -i voicetext.py -- --user YOUR_API_KEY
 >> vt.speak('こんにちは。')
 >> vt.speaker('takeru').emotion('angry').speak('こんばんは。')
+>> with open('greet.wav', 'wb') as f:
+.... f.write(vt.to_wave('おはよう。'))
 ~~~
