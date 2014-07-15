@@ -100,7 +100,7 @@ class VoiceTexter(object):
 if __name__ == '__main__':
     import argparse
 
-    parser = argparse.ArgumentParser(description='voicetexter')
+    parser = argparse.ArgumentParser(description=VoiceTexter.__name__)
     parser.add_argument('--user', type=str, default='', help='user name')
     args, unknown = parser.parse_known_args()
 
