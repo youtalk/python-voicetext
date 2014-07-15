@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
 import wave
 import logging
 
@@ -10,12 +9,15 @@ from requests.auth import HTTPBasicAuth
 import pyaudio
 
 
-class VoiceText(object):
+class VoiceTexter(object):
     URL = 'https://api.voicetext.jp/v1/tts'
     CHUNK = 1024
     _audio = pyaudio.PyAudio()
 
     def __init__(self, user_name, password='', speaker='hikari'):
+        if not user_name:
+            raise Exception('%s needs correct "user_name"' % self.__class__.__name__)
+
         self._auth = HTTPBasicAuth(user_name, password)
         self._data = {'speaker': speaker}
 
@@ -72,6 +74,8 @@ class VoiceText(object):
         logging.debug('Post: %s' % str(self._data))
         request = requests.post(self.URL, self._data, auth=self._auth)
         logging.debug('Status: %d' % request.status_code)
+        if request.status_code != requests.codes.ok:
+            raise Exception('Invalid status code: %d' % request.status_code)
         return request.content
 
     def speak(self, text):
@@ -94,4 +98,10 @@ class VoiceText(object):
 
 
 if __name__ == '__main__':
-    vt = VoiceText(user_name=sys.argv[1])
+    import argparse
+
+    parser = argparse.ArgumentParser(description='voicetexter')
+    parser.add_argument('--user', type=str, default='', help='user name')
+    args, unknown = parser.parse_known_args()
+
+    vt = VoiceTexter(user_name=args.user)
