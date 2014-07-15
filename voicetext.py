@@ -9,12 +9,23 @@ from requests.auth import HTTPBasicAuth
 import pyaudio
 
 
-class VoiceTexter(object):
+class VoiceText(object):
+    """
+    Speech synthesizer by VoiceText Web API
+    """
     URL = 'https://api.voicetext.jp/v1/tts'
     CHUNK = 1024
     _audio = pyaudio.PyAudio()
 
     def __init__(self, user_name, password='', speaker='hikari'):
+        """
+        :param user_name: Auth user name of VoiceText Web API
+        :type user_name: str
+        :param password: Auth password of VoiceText Web API
+        :type password: str
+        :param speaker: Speaker name
+        :type speaker: str
+        """
         if not user_name:
             raise Exception('%s needs correct "user_name"' % self.__class__.__name__)
 
@@ -22,6 +33,12 @@ class VoiceTexter(object):
         self._data = {'speaker': speaker}
 
     def speaker(self, speaker):
+        """
+        Change speaker.
+        :param speaker: Speaker name
+        :type speaker: str
+        :rtype: VoiceText
+        """
         if speaker in ['show', 'haruka', 'hikari', 'takeru']:
             self._data['speaker'] = speaker
         else:
@@ -30,6 +47,14 @@ class VoiceTexter(object):
         return self
 
     def emotion(self, emotion, level=1):
+        """
+        Change emotion and its level.
+        :param emotion: Emotion type
+        :type emotion: str
+        :param level: Level of emotion
+        :type level: int
+        :rtype: VoiceText
+        """
         if emotion in ['happiness', 'anger', 'sadness']:
             self._data['emotion'] = emotion
             if isinstance(level, int) and 1 <= level <= 2:
@@ -40,6 +65,12 @@ class VoiceTexter(object):
         return self
 
     def pitch(self, pitch):
+        """
+        Change pitch.
+        :param pitch: Amount of pitch
+        :type pitch: int
+        :rtype: VoiceText
+        """
         if isinstance(pitch, int):
             if pitch < 50:
                 pitch = 50
@@ -50,6 +81,12 @@ class VoiceTexter(object):
         return self
 
     def speed(self, speed):
+        """
+        Change speed.
+        :param speed: Amount of speed
+        :type speed: int
+        :rtype: VoiceText
+        """
         if isinstance(speed, int):
             if speed < 50:
                 speed = 50
@@ -60,6 +97,12 @@ class VoiceTexter(object):
         return self
 
     def volume(self, volume):
+        """
+        Change volume.
+        :param volume: Amount of volume
+        :type volume: int
+        :rtype: VoiceText
+        """
         if isinstance(volume, int):
             if volume < 50:
                 volume = 50
@@ -70,6 +113,12 @@ class VoiceTexter(object):
         return self
 
     def to_wave(self, text):
+        """
+        Convert text to wave binary.
+        :param text: Text to synthesize
+        :type text: str
+        :return: bytearray
+        """
         self._data['text'] = text
         logging.debug('Post: %s' % str(self._data))
         request = requests.post(self.URL, self._data, auth=self._auth)
@@ -79,6 +128,11 @@ class VoiceTexter(object):
         return request.content
 
     def speak(self, text):
+        """
+        Speak text.
+        :param text: Text to synthesize
+        :type text: str
+        """
         path = '/tmp/text.wav'
         with open(path, 'wb') as temp:
             temp.write(self.to_wave(text))
@@ -100,8 +154,8 @@ class VoiceTexter(object):
 if __name__ == '__main__':
     import argparse
 
-    parser = argparse.ArgumentParser(description=VoiceTexter.__name__)
+    parser = argparse.ArgumentParser(description=VoiceText.__name__)
     parser.add_argument('--user', type=str, default='', help='user name')
     args, unknown = parser.parse_known_args()
 
-    vt = VoiceTexter(user_name=args.user)
+    vt = VoiceText(user_name=args.user)
