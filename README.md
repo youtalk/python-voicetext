@@ -5,7 +5,7 @@ Voice synthesiser with [VoiceText Web API](https://cloud.voicetext.jp/webapi)
 
 To use this software, first you need to complete the user registration and get the API key.
 
-Installation
+Dependencies
 ------------
 
 ### Ubuntu
