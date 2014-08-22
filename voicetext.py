@@ -32,6 +32,12 @@ class VoiceText(object):
         self._auth = HTTPBasicAuth(user_name, password)
         self._data = {'speaker': speaker}
 
+        logging.basicConfig(level=logging.INFO)
+        self._logger = logging.getLogger(__name__)
+
+    def set_logger(self, logger):
+        self._logger = logger
+
     def speaker(self, speaker):
         """
         Change speaker.
@@ -42,7 +48,7 @@ class VoiceText(object):
         if speaker in ['show', 'haruka', 'hikari', 'takeru']:
             self._data['speaker'] = speaker
         else:
-            logging.warning('Unknown speaker: %s' % str(speaker))
+            self._logger.warning('Unknown speaker: %s' % str(speaker))
 
         return self
 
@@ -60,7 +66,7 @@ class VoiceText(object):
             if isinstance(level, int) and 1 <= level <= 2:
                 self._data['emotion_level'] = level
         else:
-            logging.warning('Unknown emotion: %s' % str(emotion))
+            self._logger.warning('Unknown emotion: %s' % str(emotion))
 
         return self
 
@@ -120,9 +126,9 @@ class VoiceText(object):
         :return: bytearray
         """
         self._data['text'] = text
-        logging.debug('Post: %s' % str(self._data))
+        self._logger.debug('Post: %s' % str(self._data))
         request = requests.post(self.URL, self._data, auth=self._auth)
-        logging.debug('Status: %d' % request.status_code)
+        self._logger.debug('Status: %d' % request.status_code)
         if request.status_code != requests.codes.ok:
             raise Exception('Invalid status code: %d' % request.status_code)
         return request.content
