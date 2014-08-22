@@ -36,7 +36,13 @@ class VoiceText(object):
         self._logger = logging.getLogger(__name__)
 
     def set_logger(self, logger):
+        """
+        Set user-specific logger.
+        :type logger: Logger
+        :rtype: VoiceText
+        """
         self._logger = logger
+        return self
 
     def speaker(self, speaker):
         """
