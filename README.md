@@ -1,4 +1,4 @@
-python-voicetext
+voicetext-python
 ===========
 
 Voice synthesiser with [VoiceText Web API](https://cloud.voicetext.jp/webapi)
