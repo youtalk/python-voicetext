@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from __future__ import absolute_import, division, print_function, unicode_literals
 import wave
 import logging
 
 import requests
 from requests.auth import HTTPBasicAuth
 import pyaudio
+
+
+class VoiceTextException(Exception):
+    pass
 
 
 class VoiceText(object):
@@ -27,7 +31,8 @@ class VoiceText(object):
         :type speaker: str
         """
         if not user_name:
-            raise Exception('%s needs correct "user_name"' % self.__class__.__name__)
+            raise VoiceTextException('%s needs correct "user_name"' %
+                                     self.__class__.__name__)
 
         self._auth = HTTPBasicAuth(user_name, password)
         self._data = {'speaker': speaker}
@@ -136,7 +141,8 @@ class VoiceText(object):
         request = requests.post(self.URL, self._data, auth=self._auth)
         self._logger.debug('Status: %d' % request.status_code)
         if request.status_code != requests.codes.ok:
-            raise Exception('Invalid status code: %d' % request.status_code)
+            raise VoiceTextException('Invalid status code: %d' %
+                                     request.status_code)
         return request.content
 
     def speak(self, text):
