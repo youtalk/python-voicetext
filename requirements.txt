@@ -1,0 +1,4 @@
+requests
+--allow-external PyAudio
+--allow-unverified PyAudio
+PyAudio
