@@ -12,4 +12,12 @@ setup(name='python-voicetext',
       download_url='https://github.com/youtalk/python-voicetext/releases/tag/0.1',
       requires=['requests', 'PyAudio'],
       platforms = ['POSIX', 'Mac OS X', 'Windows'],
+      classifiers=[
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: Apache Software License',
+          'Operating System :: OS Independent',
+          'Programming Language :: Python',
+          'Topic :: Multimedia :: Sound/Audio'
+      ]
 )
