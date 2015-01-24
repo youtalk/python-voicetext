@@ -5,6 +5,21 @@ Voice synthesiser with [VoiceText Web API](https://cloud.voicetext.jp/webapi)
 
 To use this software, first you need to [complete the user registration](https://cloud.voicetext.jp/webapi/api_keys/new) and get the API key.
 
+Dependencies
+------------
+
+### Ubuntu
+
+~~~sh
+$ sudo apt-get install python-pyaudio
+~~~
+
+### OSX
+
+~~~sh
+$ brew install portaudio
+~~~
+
 Installation
 ------------
 
