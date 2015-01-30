@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-from setuptools  import setup
+from setuptools  import setup, find_packages
 
 setup(name='python-voicetext',
-      version='0.1',
+      version='0.1.1',
       license='Apache License 2.0',
       description='Python library of VoiceText Web API',
       long_description='See also https://github.com/youtalk/python-voicetext#readme',
       author='Yutaka Kondo',
       author_email='yutaka.kondo@youtalk.jp',
       url='https://github.com/youtalk/python-voicetext',
-      packages=['voicetext'],
-      download_url='https://github.com/youtalk/python-voicetext/releases/tag/0.1',
-      requires=['requests', 'PyAudio'],
+      packages=find_packages(),
+      download_url='https://github.com/youtalk/python-voicetext/releases/tag/0.1.1',
+      install_requires=['requests', 'PyAudio'],
       platforms = ['POSIX', 'Mac OS X', 'Windows'],
       classifiers=[
           'Environment :: Console',
