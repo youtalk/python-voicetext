@@ -2,15 +2,15 @@
 from setuptools  import setup, find_packages
 
 setup(name='python-voicetext',
-      version='0.1.1',
+      version='0.2',
       license='Apache License 2.0',
-      description='Python library of VoiceText Web API',
+      description='Voice synthesiser using VoiceText Web API',
       long_description='See also https://github.com/youtalk/python-voicetext#readme',
       author='Yutaka Kondo',
       author_email='yutaka.kondo@youtalk.jp',
       url='https://github.com/youtalk/python-voicetext',
       packages=find_packages(),
-      download_url='https://github.com/youtalk/python-voicetext/releases/tag/0.1.1',
+      download_url='https://github.com/youtalk/python-voicetext/releases/tag/0.2',
       install_requires=['requests', 'PyAudio'],
       platforms = ['POSIX', 'Mac OS X', 'Windows'],
       classifiers=[

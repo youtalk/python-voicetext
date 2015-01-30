@@ -15,6 +15,8 @@ $ pip install python-voicetext
 or
 
 ~~~sh
+$ git clone git@github.com:youtalk/python-voicetext.git
+$ cd python-voicetext
 $ python setup.py install
 ~~~
 
