@@ -21,7 +21,7 @@ class VoiceText(object):
     CHUNK = 1024
     _audio = pyaudio.PyAudio()
 
-    def __init__(self, user_name, password='', speaker='hikari'):
+    def __init__(self, user_name='', password='', speaker='hikari'):
         """
         :param user_name: Auth user name of VoiceText Web API
         :type user_name: str
@@ -30,15 +30,16 @@ class VoiceText(object):
         :param speaker: Speaker name
         :type speaker: str
         """
-        if not user_name:
-            raise VoiceTextException('%s needs correct "user_name"' %
-                                     self.__class__.__name__)
-
         self._auth = HTTPBasicAuth(user_name, password)
         self._data = {'speaker': speaker}
 
         logging.basicConfig(level=logging.INFO)
         self._logger = logging.getLogger(__name__)
+
+        try:
+            self.to_wave('test')
+        except VoiceTextException as e:
+            self._logger.exception('HTTP basic authentification error')
 
     def set_logger(self, logger):
         """
