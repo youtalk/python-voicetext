@@ -1,9 +1,22 @@
 python-voicetext
-===========
+================
 
-Voice synthesiser with [VoiceText Web API](https://cloud.voicetext.jp/webapi)
+Voice synthesiser using [VoiceText Web API](https://cloud.voicetext.jp/webapi)
 
 To use this software, first you need to [complete the user registration](https://cloud.voicetext.jp/webapi/api_keys/new) and get the API key.
+
+Installation
+------------
+
+~~~sh
+$ pip install python-voicetext
+~~~
+
+or
+
+~~~sh
+$ python setup.py install
+~~~
 
 Dependencies
 ------------
@@ -20,14 +33,6 @@ $ sudo apt-get install python-pyaudio
 $ brew install portaudio
 ~~~
 
-Installation
-------------
-
-~~~sh
-$ pip install -U -r requirements.txt
-$ python setup.py install
-~~~
-
 Usage
 -----
 
@@ -40,3 +45,5 @@ $ ipython
 >> with open('greet.wav', 'wb') as f:
 .... f.write(vt.to_wave('おはよう。'))
 ~~~
+
+For more information, see also [test/test_voicetext.py](https://github.com/youtalk/python-voicetext/blob/master/test/test_voicetext.py)
