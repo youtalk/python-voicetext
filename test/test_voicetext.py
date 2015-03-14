@@ -11,6 +11,9 @@ class VoiceTextTest(unittest.TestCase):
     def setUpClass(cls):
         cls.vt = VoiceText('YOUR_API_KEY')
 
+    def setUp(self):
+        self.vt.restore_default()
+
     def test_speak(self):
         self.vt.speak('こんにちは。')
 
@@ -19,6 +22,8 @@ class VoiceTextTest(unittest.TestCase):
         self.vt.speaker('haruka').speak('ハルカです。')
         self.vt.speaker('hikari').speak('ヒカリです。')
         self.vt.speaker('takeru').speak('タケルです。')
+        self.vt.speaker('santa').speak('サンタです。')
+        self.vt.speaker('bear').speak('熊です。')
 
     def test_speak_emotions(self):
         self.vt.emotion('happiness').speak('喜び。')
@@ -30,7 +35,7 @@ class VoiceTextTest(unittest.TestCase):
             self.vt.pitch(p).speak('ピッチ%d' % p)
 
     def test_speak_speeds(self):
-        for s in range(50, 201, 50):
+        for s in range(50, 401, 50):
             self.vt.speed(s).speak('スピード%d' % s)
 
     def test_speak_volumes(self):
