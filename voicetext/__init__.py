@@ -41,7 +41,7 @@ class VoiceText(object):
         try:
             self.to_wave('test')
         except VoiceTextException as e:
-            self._logger.exception('HTTP basic authentification error')
+            raise VoiceTextException('HTTP basic auth error')
 
     def set_logger(self, logger):
         """
