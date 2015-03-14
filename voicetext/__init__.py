@@ -3,6 +3,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import wave
 import logging
+import json
+import os.path
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -152,9 +154,12 @@ class VoiceText(object):
         :param text: Text to synthesize
         :type text: str
         """
-        path = '/tmp/text.wav'
-        with open(path, 'wb') as temp:
-            temp.write(self.to_wave(text))
+        self._data['text'] = text
+        path = '/tmp/voicetext_%s.wav' % hash(json.dumps(self._data))
+        if not os.path.exists(path):
+            # cache not found
+            with open(path, 'wb') as temp:
+                temp.write(self.to_wave(text))
 
         temp = wave.open(path)
         stream = self._audio.open(
