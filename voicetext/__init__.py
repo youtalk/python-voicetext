@@ -57,7 +57,7 @@ class VoiceText(object):
         :type speaker: str
         :rtype: VoiceText
         """
-        if speaker in ['show', 'haruka', 'hikari', 'takeru']:
+        if speaker in ['show', 'haruka', 'hikari', 'takeru', 'santa', 'bear']:
             self._data['speaker'] = speaker
         else:
             self._logger.warning('Unknown speaker: %s' % str(speaker))
