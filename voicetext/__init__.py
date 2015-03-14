@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import wave
 import logging
 import json
+import os
 import os.path
 
 import requests
@@ -33,7 +34,8 @@ class VoiceText(object):
         :type speaker: str
         """
         self._auth = HTTPBasicAuth(user_name, password)
-        self._data = {'speaker': speaker}
+        self._default_speaker = speaker
+        self._data = {'speaker': self._default_speaker}
 
         logging.basicConfig(level=logging.INFO)
         self._logger = logging.getLogger(__name__)
@@ -50,6 +52,14 @@ class VoiceText(object):
         :rtype: VoiceText
         """
         self._logger = logger
+        return self
+
+    def restore_default(self):
+        """
+        Restore default parameters.
+        :rtype: VoiceText
+        """
+        self._data = {'speaker': self._default_speaker}
         return self
 
     def speaker(self, speaker):
@@ -158,8 +168,9 @@ class VoiceText(object):
         path = '/tmp/voicetext_%s.wav' % hash(json.dumps(self._data))
         if not os.path.exists(path):
             # cache not found
+            w = self.to_wave(text)
             with open(path, 'wb') as temp:
-                temp.write(self.to_wave(text))
+                temp.write(w)
 
         temp = wave.open(path)
         stream = self._audio.open(
