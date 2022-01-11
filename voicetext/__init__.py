@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
+#!/usr/bin/env python3
 import json
 import logging
 import os
@@ -17,7 +14,7 @@ class VoiceTextException(Exception):
     pass
 
 
-class VoiceText(object):
+class VoiceText:
     """
     Speech synthesizer by VoiceText Web API
     """
@@ -26,14 +23,13 @@ class VoiceText(object):
     CHUNK = 1024
     _audio = pyaudio.PyAudio()
 
-    def __init__(self, user_name="", password="", speaker="hikari"):
+    def __init__(
+        self, user_name: str = "", password: str = "", speaker: str = "hikari"
+    ) -> None:
         """
         :param user_name: Auth user name of VoiceText Web API
-        :type user_name: str
         :param password: Auth password of VoiceText Web API
-        :type password: str
         :param speaker: Speaker name
-        :type speaker: str
         """
         self._auth = HTTPBasicAuth(user_name, password)
         self._default_speaker = speaker
@@ -44,112 +40,96 @@ class VoiceText(object):
 
         try:
             self.to_wave("test")
-        except VoiceTextException as e:
+        except VoiceTextException:
             raise VoiceTextException("HTTP basic auth error")
 
-    def set_logger(self, logger):
-        """
-        Set user-specific logger.
-        :type logger: Logger
-        :rtype: VoiceText
-        """
-        self._logger = logger
-        return self
+    @property
+    def logger(self) -> logging.Logger:
+        return self._logger
 
-    def restore_default(self):
+    @logger.setter
+    def logger(self, logger: logging.Logger) -> None:
+        self._logger = logger
+
+    def restore_default(self) -> None:
         """
         Restore default parameters.
-        :rtype: VoiceText
         """
         self._data = {"speaker": self._default_speaker}
-        return self
 
-    def speaker(self, speaker):
-        """
-        Change speaker.
-        :param speaker: Speaker name
-        :type speaker: str
-        :rtype: VoiceText
-        """
+    @property
+    def speaker(self) -> str:
+        return self._data["speaker"]
+
+    @speaker.setter
+    def speaker(self, speaker: str) -> None:
         if speaker in ["show", "haruka", "hikari", "takeru", "santa", "bear"]:
             self._data["speaker"] = speaker
         else:
             self._logger.warning("Unknown speaker: %s" % str(speaker))
 
-        return self
+    @property
+    def emotion(self) -> str:
+        return self._data["emotion"]
 
-    def emotion(self, emotion, level=1):
-        """
-        Change emotion and its level.
-        :param emotion: Emotion type
-        :type emotion: str
-        :param level: Level of emotion
-        :type level: int
-        :rtype: VoiceText
-        """
+    @emotion.setter
+    def emotion(self, emotion: str) -> None:
         if emotion in ["happiness", "anger", "sadness"]:
             self._data["emotion"] = emotion
-            if isinstance(level, int) and 1 <= level <= 2:
-                self._data["emotion_level"] = level
         else:
             self._logger.warning("Unknown emotion: %s" % str(emotion))
 
-        return self
+    @property
+    def emotion_level(self) -> int:
+        return self._data["emotion_level"]
 
-    def pitch(self, pitch):
-        """
-        Change pitch.
-        :param pitch: Amount of pitch
-        :type pitch: int
-        :rtype: VoiceText
-        """
-        if isinstance(pitch, int):
-            if pitch < 50:
-                pitch = 50
-            elif 200 < pitch:
-                pitch = 200
-            self._data["pitch"] = pitch
+    @emotion_level.setter
+    def emotion_level(self, level: int) -> None:
+        if 1 <= level <= 2:
+            self._data["emotion_level"] = level
+        else:
+            self._logger.warning("Unknown emotion_level: %s" % str(emotion_level))
 
-        return self
+    @property
+    def pitch(self) -> int:
+        return self._data["pitch"]
 
-    def speed(self, speed):
-        """
-        Change speed.
-        :param speed: Amount of speed
-        :type speed: int
-        :rtype: VoiceText
-        """
-        if isinstance(speed, int):
-            if speed < 50:
-                speed = 50
-            elif 400 < speed:
-                speed = 400
-            self._data["speed"] = speed
+    @pitch.setter
+    def pitch(self, pitch: int) -> None:
+        if pitch < 50:
+            pitch = 50
+        elif 200 < pitch:
+            pitch = 200
+        self._data["pitch"] = pitch
 
-        return self
+    @property
+    def speed(self) -> int:
+        return self._data["speed"]
 
-    def volume(self, volume):
-        """
-        Change volume.
-        :param volume: Amount of volume
-        :type volume: int
-        :rtype: VoiceText
-        """
-        if isinstance(volume, int):
-            if volume < 50:
-                volume = 50
-            elif 200 < volume:
-                volume = 200
-            self._data["volume"] = volume
+    @speed.setter
+    def speed(self, speed: int) -> None:
+        if speed < 50:
+            speed = 50
+        elif 400 < speed:
+            speed = 400
+        self._data["speed"] = speed
 
-        return self
+    @property
+    def volume(self) -> int:
+        return self._data["volume"]
 
-    def to_wave(self, text):
+    @volume.setter
+    def volume(self, volume: int):
+        if volume < 50:
+            volume = 50
+        elif 200 < volume:
+            volume = 200
+        self._data["volume"] = volume
+
+    def to_wave(self, text: str) -> bytearray:
         """
         Convert text to wave binary.
         :param text: Text to synthesize
-        :type text: str
-        :return: bytearray
         """
         self._data["text"] = text
         self._logger.debug("Post: %s" % str(self._data))
@@ -159,11 +139,10 @@ class VoiceText(object):
             raise VoiceTextException("Invalid status code: %d" % request.status_code)
         return request.content
 
-    def speak(self, text):
+    def speak(self, text: str) -> None:
         """
         Speak text.
         :param text: Text to synthesize
-        :type text: str
         """
         self._data["text"] = text
         path = "/tmp/voicetext_%s.wav" % hash(json.dumps(self._data))
