@@ -25,24 +25,18 @@ class VoiceText:
     _audio = pyaudio.PyAudio()
 
     def __init__(
-        self, user_name: str = "", password: str = "", speaker: str = "hikari"
+        self, api_key: str = "", speaker: str = "hikari"
     ) -> None:
         """
-        :param user_name: Auth user name of VoiceText Web API
         :param password: Auth password of VoiceText Web API
         :param speaker: Speaker name
         """
-        self._auth = HTTPBasicAuth(user_name, password)
+        self._auth = HTTPBasicAuth(api_key, "")
         self._default_speaker = speaker
         self._data = {"speaker": self._default_speaker}
 
         logging.basicConfig(level=logging.INFO)
         self._logger = logging.getLogger(__name__)
-
-        try:
-            self.to_wave("test")
-        except VoiceTextException:
-            raise VoiceTextException("HTTP basic auth error")
 
     @property
     def logger(self) -> logging.Logger:
@@ -127,7 +121,7 @@ class VoiceText:
             volume = 200
         self._data["volume"] = volume
 
-    def to_wave(self, text: str) -> bytearray:
+    def to_wave(self, text: str) -> Optional[bytearray]:
         """
         Convert text to wave binary.
         :param text: Text to synthesize
@@ -137,7 +131,7 @@ class VoiceText:
         request = requests.post(self.URL, self._data, auth=self._auth)
         self._logger.debug("Status: %d" % request.status_code)
         if request.status_code != requests.codes.ok:
-            raise VoiceTextException("Invalid status code: %d" % request.status_code)
+            return None
         return request.content
 
     def speak(self, text: str) -> None:
@@ -148,10 +142,11 @@ class VoiceText:
         self._data["text"] = text
         path = "/tmp/voicetext_%s.wav" % hash(json.dumps(self._data))
         if not os.path.exists(path):
-            # cache not found
+            # Cache is not found
             w = self.to_wave(text)
-            with open(path, "wb") as temp:
-                temp.write(w)
+            if w is not None:
+                with open(path, "wb") as temp:
+                    temp.write(w)
 
         temp = wave.open(path)
         stream = self._audio.open(
@@ -172,7 +167,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description=VoiceText.__name__)
-    parser.add_argument("--user", type=str, default="", help="user name")
+    parser.add_argument("--api-key", type=str, default="", help="API key")
     args, unknown = parser.parse_known_args()
 
-    vt = VoiceText(user_name=args.user)
+    vt = VoiceText(api_key=args.api_key)
