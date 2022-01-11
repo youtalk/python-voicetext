@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import find_packages, setup
 
-version = "0.3.1"
+version = "0.9"
 
 setup(
     name="python-voicetext",
