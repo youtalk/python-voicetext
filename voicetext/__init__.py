@@ -21,16 +21,14 @@ class VoiceText:
     """
 
     URL = "https://api.voicetext.jp/v1/tts"
-    CHUNK = 1024
-    _audio = pyaudio.PyAudio()
+    CHUNK_SIZE = 1024
 
-    def __init__(
-        self, api_key: str = "", speaker: str = "hikari"
-    ) -> None:
+    def __init__(self, api_key: str = "", speaker: str = "hikari") -> None:
         """
         :param password: Auth password of VoiceText Web API
         :param speaker: Speaker name
         """
+        self._audio = pyaudio.PyAudio()
         self._auth = HTTPBasicAuth(api_key, "")
         self._default_speaker = speaker
         self._data = {"speaker": self._default_speaker}
@@ -148,19 +146,17 @@ class VoiceText:
                 with open(path, "wb") as temp:
                     temp.write(w)
 
-        temp = wave.open(path)
-        stream = self._audio.open(
-            format=self._audio.get_format_from_width(temp.getsampwidth()),
-            channels=temp.getnchannels(),
-            rate=temp.getframerate(),
-            output=True,
-        )
-        data = temp.readframes(self.CHUNK)
-        while data:
-            stream.write(data)
-            data = temp.readframes(min(data, self.CHUNK))
-        stream.close()
-        temp.close()
+        with wave.open(path) as temp:
+            with self._audio.open(
+                format=self._audio.get_format_from_width(temp.getsampwidth()),
+                channels=temp.getnchannels(),
+                rate=temp.getframerate(),
+                output=True,
+            ) as stream:
+                frames = temp.readframes(self.CHUNK_SIZE)
+                while frames:
+                    stream.write(frames)
+                    frames = temp.readframes(min(frames, self.CHUNK_SIZE))
 
 
 if __name__ == "__main__":
