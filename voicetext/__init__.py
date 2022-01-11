@@ -146,7 +146,7 @@ class VoiceText:
                 with open(path, "wb") as temp:
                     temp.write(w)
 
-        with wave.open(path) as temp:
+        with wave.open(path, "rb") as temp:
             with self._audio.open(
                 format=self._audio.get_format_from_width(temp.getsampwidth()),
                 channels=temp.getnchannels(),
