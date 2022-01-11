@@ -26,7 +26,7 @@ Usage
 -----
 
 ~~~sh
-$ ipython
+$ python3
 >> from voicetext import VoiceText
 >> vt = VoiceText("YOUR_API_KEY")
 >> vt.speak("こんにちは。")
