@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
-import wave
-import logging
+
 import json
+import logging
 import os
 import os.path
+import wave
 
+import pyaudio
 import requests
 from requests.auth import HTTPBasicAuth
-import pyaudio
 
 
 class VoiceTextException(Exception):
@@ -20,11 +21,12 @@ class VoiceText(object):
     """
     Speech synthesizer by VoiceText Web API
     """
-    URL = 'https://api.voicetext.jp/v1/tts'
+
+    URL = "https://api.voicetext.jp/v1/tts"
     CHUNK = 1024
     _audio = pyaudio.PyAudio()
 
-    def __init__(self, user_name='', password='', speaker='hikari'):
+    def __init__(self, user_name="", password="", speaker="hikari"):
         """
         :param user_name: Auth user name of VoiceText Web API
         :type user_name: str
@@ -35,15 +37,15 @@ class VoiceText(object):
         """
         self._auth = HTTPBasicAuth(user_name, password)
         self._default_speaker = speaker
-        self._data = {'speaker': self._default_speaker}
+        self._data = {"speaker": self._default_speaker}
 
         logging.basicConfig(level=logging.INFO)
         self._logger = logging.getLogger(__name__)
 
         try:
-            self.to_wave('test')
+            self.to_wave("test")
         except VoiceTextException as e:
-            raise VoiceTextException('HTTP basic auth error')
+            raise VoiceTextException("HTTP basic auth error")
 
     def set_logger(self, logger):
         """
@@ -59,7 +61,7 @@ class VoiceText(object):
         Restore default parameters.
         :rtype: VoiceText
         """
-        self._data = {'speaker': self._default_speaker}
+        self._data = {"speaker": self._default_speaker}
         return self
 
     def speaker(self, speaker):
@@ -69,10 +71,10 @@ class VoiceText(object):
         :type speaker: str
         :rtype: VoiceText
         """
-        if speaker in ['show', 'haruka', 'hikari', 'takeru', 'santa', 'bear']:
-            self._data['speaker'] = speaker
+        if speaker in ["show", "haruka", "hikari", "takeru", "santa", "bear"]:
+            self._data["speaker"] = speaker
         else:
-            self._logger.warning('Unknown speaker: %s' % str(speaker))
+            self._logger.warning("Unknown speaker: %s" % str(speaker))
 
         return self
 
@@ -85,12 +87,12 @@ class VoiceText(object):
         :type level: int
         :rtype: VoiceText
         """
-        if emotion in ['happiness', 'anger', 'sadness']:
-            self._data['emotion'] = emotion
+        if emotion in ["happiness", "anger", "sadness"]:
+            self._data["emotion"] = emotion
             if isinstance(level, int) and 1 <= level <= 2:
-                self._data['emotion_level'] = level
+                self._data["emotion_level"] = level
         else:
-            self._logger.warning('Unknown emotion: %s' % str(emotion))
+            self._logger.warning("Unknown emotion: %s" % str(emotion))
 
         return self
 
@@ -106,7 +108,7 @@ class VoiceText(object):
                 pitch = 50
             elif 200 < pitch:
                 pitch = 200
-            self._data['pitch'] = pitch
+            self._data["pitch"] = pitch
 
         return self
 
@@ -122,7 +124,7 @@ class VoiceText(object):
                 speed = 50
             elif 400 < speed:
                 speed = 400
-            self._data['speed'] = speed
+            self._data["speed"] = speed
 
         return self
 
@@ -138,7 +140,7 @@ class VoiceText(object):
                 volume = 50
             elif 200 < volume:
                 volume = 200
-            self._data['volume'] = volume
+            self._data["volume"] = volume
 
         return self
 
@@ -149,13 +151,12 @@ class VoiceText(object):
         :type text: str
         :return: bytearray
         """
-        self._data['text'] = text
-        self._logger.debug('Post: %s' % str(self._data))
+        self._data["text"] = text
+        self._logger.debug("Post: %s" % str(self._data))
         request = requests.post(self.URL, self._data, auth=self._auth)
-        self._logger.debug('Status: %d' % request.status_code)
+        self._logger.debug("Status: %d" % request.status_code)
         if request.status_code != requests.codes.ok:
-            raise VoiceTextException('Invalid status code: %d' %
-                                     request.status_code)
+            raise VoiceTextException("Invalid status code: %d" % request.status_code)
         return request.content
 
     def speak(self, text):
@@ -164,12 +165,12 @@ class VoiceText(object):
         :param text: Text to synthesize
         :type text: str
         """
-        self._data['text'] = text
-        path = '/tmp/voicetext_%s.wav' % hash(json.dumps(self._data))
+        self._data["text"] = text
+        path = "/tmp/voicetext_%s.wav" % hash(json.dumps(self._data))
         if not os.path.exists(path):
             # cache not found
             w = self.to_wave(text)
-            with open(path, 'wb') as temp:
+            with open(path, "wb") as temp:
                 temp.write(w)
 
         temp = wave.open(path)
@@ -177,7 +178,8 @@ class VoiceText(object):
             format=self._audio.get_format_from_width(temp.getsampwidth()),
             channels=temp.getnchannels(),
             rate=temp.getframerate(),
-            output=True)
+            output=True,
+        )
         data = temp.readframes(self.CHUNK)
         while data:
             stream.write(data)
@@ -186,11 +188,11 @@ class VoiceText(object):
         temp.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description=VoiceText.__name__)
-    parser.add_argument('--user', type=str, default='', help='user name')
+    parser.add_argument("--user", type=str, default="", help="user name")
     args, unknown = parser.parse_known_args()
 
     vt = VoiceText(user_name=args.user)
