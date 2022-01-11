@@ -1,196 +1,161 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
-import wave
-import logging
+#!/usr/bin/env python3
 import json
+import logging
 import os
 import os.path
+from typing import Any, Dict, Optional, cast
 
 import requests
+from playsound import playsound
 from requests.auth import HTTPBasicAuth
-import pyaudio
 
 
 class VoiceTextException(Exception):
     pass
 
 
-class VoiceText(object):
+class VoiceText:
     """
     Speech synthesizer by VoiceText Web API
     """
-    URL = 'https://api.voicetext.jp/v1/tts'
-    CHUNK = 1024
-    _audio = pyaudio.PyAudio()
 
-    def __init__(self, user_name='', password='', speaker='hikari'):
+    URL = "https://api.voicetext.jp/v1/tts"
+    CHUNK_SIZE = 1024
+
+    def __init__(self, api_key: str = "", speaker: str = "hikari") -> None:
         """
-        :param user_name: Auth user name of VoiceText Web API
-        :type user_name: str
         :param password: Auth password of VoiceText Web API
-        :type password: str
         :param speaker: Speaker name
-        :type speaker: str
         """
-        self._auth = HTTPBasicAuth(user_name, password)
+        self._auth = HTTPBasicAuth(api_key, "")
         self._default_speaker = speaker
-        self._data = {'speaker': self._default_speaker}
+        self._data: Dict[str, Any] = {"speaker": self._default_speaker}
 
         logging.basicConfig(level=logging.INFO)
         self._logger = logging.getLogger(__name__)
 
-        try:
-            self.to_wave('test')
-        except VoiceTextException as e:
-            raise VoiceTextException('HTTP basic auth error')
+    @property
+    def logger(self) -> logging.Logger:
+        return self._logger
 
-    def set_logger(self, logger):
-        """
-        Set user-specific logger.
-        :type logger: Logger
-        :rtype: VoiceText
-        """
+    @logger.setter
+    def logger(self, logger: logging.Logger) -> None:
         self._logger = logger
-        return self
 
-    def restore_default(self):
+    def restore_default(self) -> None:
         """
         Restore default parameters.
-        :rtype: VoiceText
         """
-        self._data = {'speaker': self._default_speaker}
-        return self
+        self._data = {"speaker": self._default_speaker}
 
-    def speaker(self, speaker):
-        """
-        Change speaker.
-        :param speaker: Speaker name
-        :type speaker: str
-        :rtype: VoiceText
-        """
-        if speaker in ['show', 'haruka', 'hikari', 'takeru', 'santa', 'bear']:
-            self._data['speaker'] = speaker
+    @property
+    def speaker(self) -> str:
+        return cast(str, self._data["speaker"])
+
+    @speaker.setter
+    def speaker(self, speaker: str) -> None:
+        if speaker in ["show", "haruka", "hikari", "takeru", "santa", "bear"]:
+            self._data["speaker"] = speaker
         else:
-            self._logger.warning('Unknown speaker: %s' % str(speaker))
+            self._logger.warning("Invalid speaker: %s" % str(speaker))
 
-        return self
+    @property
+    def emotion(self) -> Optional[str]:
+        return cast(Optional[str], self._data.get("emotion"))
 
-    def emotion(self, emotion, level=1):
-        """
-        Change emotion and its level.
-        :param emotion: Emotion type
-        :type emotion: str
-        :param level: Level of emotion
-        :type level: int
-        :rtype: VoiceText
-        """
-        if emotion in ['happiness', 'anger', 'sadness']:
-            self._data['emotion'] = emotion
-            if isinstance(level, int) and 1 <= level <= 2:
-                self._data['emotion_level'] = level
+    @emotion.setter
+    def emotion(self, emotion: str) -> None:
+        if emotion in ["happiness", "anger", "sadness"]:
+            self._data["emotion"] = emotion
         else:
-            self._logger.warning('Unknown emotion: %s' % str(emotion))
+            self._logger.warning("Invalid emotion: %s" % str(emotion))
 
-        return self
+    @property
+    def emotion_level(self) -> int:
+        return (
+            cast(int, self._data["emotion_level"])
+            if "emotion_level" in self._data
+            else 2
+        )
 
-    def pitch(self, pitch):
-        """
-        Change pitch.
-        :param pitch: Amount of pitch
-        :type pitch: int
-        :rtype: VoiceText
-        """
-        if isinstance(pitch, int):
-            if pitch < 50:
-                pitch = 50
-            elif 200 < pitch:
-                pitch = 200
-            self._data['pitch'] = pitch
+    @emotion_level.setter
+    def emotion_level(self, level: int) -> None:
+        if 1 <= level <= 4:
+            self._data["emotion_level"] = level
+        else:
+            self._logger.warning(f"Invalid emotion_level: {level}")
 
-        return self
+    @property
+    def pitch(self) -> int:
+        return cast(int, self._data["pitch"]) if "pitch" in self._data else 100
 
-    def speed(self, speed):
-        """
-        Change speed.
-        :param speed: Amount of speed
-        :type speed: int
-        :rtype: VoiceText
-        """
-        if isinstance(speed, int):
-            if speed < 50:
-                speed = 50
-            elif 400 < speed:
-                speed = 400
-            self._data['speed'] = speed
+    @pitch.setter
+    def pitch(self, pitch: int) -> None:
+        if pitch < 50:
+            pitch = 50
+        elif 200 < pitch:
+            pitch = 200
+        self._data["pitch"] = pitch
 
-        return self
+    @property
+    def speed(self) -> int:
+        return cast(int, self._data["speed"]) if "speed" in self._data else 100
 
-    def volume(self, volume):
-        """
-        Change volume.
-        :param volume: Amount of volume
-        :type volume: int
-        :rtype: VoiceText
-        """
-        if isinstance(volume, int):
-            if volume < 50:
-                volume = 50
-            elif 200 < volume:
-                volume = 200
-            self._data['volume'] = volume
+    @speed.setter
+    def speed(self, speed: int) -> None:
+        if speed < 50:
+            speed = 50
+        elif 400 < speed:
+            speed = 400
+        self._data["speed"] = speed
 
-        return self
+    @property
+    def volume(self) -> int:
+        return cast(int, self._data["volume"]) if "volume" in self._data else 100
 
-    def to_wave(self, text):
+    @volume.setter
+    def volume(self, volume: int) -> None:
+        if volume < 50:
+            volume = 50
+        elif 200 < volume:
+            volume = 200
+        self._data["volume"] = volume
+
+    def to_wave(self, text: str) -> Optional[bytes]:
         """
         Convert text to wave binary.
         :param text: Text to synthesize
-        :type text: str
-        :return: bytearray
         """
-        self._data['text'] = text
-        self._logger.debug('Post: %s' % str(self._data))
+        self._data["text"] = text
+        self._logger.debug("Post: %s" % str(self._data))
         request = requests.post(self.URL, self._data, auth=self._auth)
-        self._logger.debug('Status: %d' % request.status_code)
+        self._logger.debug("Status: %d" % request.status_code)
         if request.status_code != requests.codes.ok:
-            raise VoiceTextException('Invalid status code: %d' %
-                                     request.status_code)
+            return None
         return request.content
 
-    def speak(self, text):
+    def speak(self, text: str) -> None:
         """
         Speak text.
         :param text: Text to synthesize
-        :type text: str
         """
-        self._data['text'] = text
-        path = '/tmp/voicetext_%s.wav' % hash(json.dumps(self._data))
+        self._data["text"] = text
+        path = "/tmp/voicetext_%s.wav" % hash(json.dumps(self._data))
         if not os.path.exists(path):
-            # cache not found
+            # Cache is not found
             w = self.to_wave(text)
-            with open(path, 'wb') as temp:
-                temp.write(w)
+            if w is not None:
+                with open(path, "wb") as temp:
+                    temp.write(w)
 
-        temp = wave.open(path)
-        stream = self._audio.open(
-            format=self._audio.get_format_from_width(temp.getsampwidth()),
-            channels=temp.getnchannels(),
-            rate=temp.getframerate(),
-            output=True)
-        data = temp.readframes(self.CHUNK)
-        while data:
-            stream.write(data)
-            data = temp.readframes(min(data, self.CHUNK))
-        stream.close()
-        temp.close()
+        playsound(path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description=VoiceText.__name__)
-    parser.add_argument('--user', type=str, default='', help='user name')
+    parser.add_argument("--api-key", type=str, default="", help="API key")
     args, unknown = parser.parse_known_args()
 
-    vt = VoiceText(user_name=args.user)
+    vt = VoiceText(api_key=args.api_key)
