@@ -4,10 +4,10 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pysen = {extras = ["lint"], version = "*"}
 
 [packages]
 playsound = "*"
-pysen = {extras = ["lint"], version = "*"}
 requests = "*"
 
 [requires]

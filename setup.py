@@ -14,7 +14,7 @@ setup(
     url="https://github.com/youtalk/python-voicetext",
     packages=find_packages(),
     download_url="https://github.com/youtalk/python-voicetext/releases/tag/" + version,
-    install_requires=["requests", "PyAudio"],
+    install_requires=["requests", "playsound"],
     platforms=["POSIX", "Mac OS X", "Windows"],
     classifiers=[
         "Environment :: Console",
