@@ -6,8 +6,8 @@ import os.path
 import wave
 from typing import Optional
 
-import pyaudio
 import requests
+from playsound import playsound
 from requests.auth import HTTPBasicAuth
 
 
@@ -28,7 +28,6 @@ class VoiceText:
         :param password: Auth password of VoiceText Web API
         :param speaker: Speaker name
         """
-        self._audio = pyaudio.PyAudio()
         self._auth = HTTPBasicAuth(api_key, "")
         self._default_speaker = speaker
         self._data = {"speaker": self._default_speaker}
@@ -146,17 +145,7 @@ class VoiceText:
                 with open(path, "wb") as temp:
                     temp.write(w)
 
-        with wave.open(path, "rb") as temp:
-            with self._audio.open(
-                format=self._audio.get_format_from_width(temp.getsampwidth()),
-                channels=temp.getnchannels(),
-                rate=temp.getframerate(),
-                output=True,
-            ) as stream:
-                frames = temp.readframes(self.CHUNK_SIZE)
-                while frames:
-                    stream.write(frames)
-                    frames = temp.readframes(min(frames, self.CHUNK_SIZE))
+        playsound(path)
 
 
 if __name__ == "__main__":
