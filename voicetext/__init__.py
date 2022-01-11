@@ -4,6 +4,7 @@ import logging
 import os
 import os.path
 import wave
+from typing import Optional
 
 import pyaudio
 import requests
@@ -66,33 +67,33 @@ class VoiceText:
         if speaker in ["show", "haruka", "hikari", "takeru", "santa", "bear"]:
             self._data["speaker"] = speaker
         else:
-            self._logger.warning("Unknown speaker: %s" % str(speaker))
+            self._logger.warning("Invalid speaker: %s" % str(speaker))
 
     @property
-    def emotion(self) -> str:
-        return self._data["emotion"]
+    def emotion(self) -> Optional[str]:
+        return self._data.get("emotion")
 
     @emotion.setter
     def emotion(self, emotion: str) -> None:
         if emotion in ["happiness", "anger", "sadness"]:
             self._data["emotion"] = emotion
         else:
-            self._logger.warning("Unknown emotion: %s" % str(emotion))
+            self._logger.warning("Invalid emotion: %s" % str(emotion))
 
     @property
     def emotion_level(self) -> int:
-        return self._data["emotion_level"]
+        return self._data["emotion_level"] if "emotion_level" in self._data else 2
 
     @emotion_level.setter
     def emotion_level(self, level: int) -> None:
-        if 1 <= level <= 2:
+        if 1 <= level <= 4:
             self._data["emotion_level"] = level
         else:
-            self._logger.warning("Unknown emotion_level: %s" % str(emotion_level))
+            self._logger.warning(f"Invalid emotion_level: {level}")
 
     @property
     def pitch(self) -> int:
-        return self._data["pitch"]
+        return self._data["pitch"] if "pitch" in self._data else 100
 
     @pitch.setter
     def pitch(self, pitch: int) -> None:
@@ -104,7 +105,7 @@ class VoiceText:
 
     @property
     def speed(self) -> int:
-        return self._data["speed"]
+        return self._data["speed"] if "speed" in self._data else 100
 
     @speed.setter
     def speed(self, speed: int) -> None:
@@ -116,7 +117,7 @@ class VoiceText:
 
     @property
     def volume(self) -> int:
-        return self._data["volume"]
+        return self._data["volume"] if "volume" in self._data else 100
 
     @volume.setter
     def volume(self, volume: int):
