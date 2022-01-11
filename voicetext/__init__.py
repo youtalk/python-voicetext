@@ -3,8 +3,7 @@ import json
 import logging
 import os
 import os.path
-import wave
-from typing import Optional
+from typing import Any, Dict, Optional, cast
 
 import requests
 from playsound import playsound
@@ -30,7 +29,7 @@ class VoiceText:
         """
         self._auth = HTTPBasicAuth(api_key, "")
         self._default_speaker = speaker
-        self._data = {"speaker": self._default_speaker}
+        self._data: Dict[str, Any] = {"speaker": self._default_speaker}
 
         logging.basicConfig(level=logging.INFO)
         self._logger = logging.getLogger(__name__)
@@ -51,7 +50,7 @@ class VoiceText:
 
     @property
     def speaker(self) -> str:
-        return self._data["speaker"]
+        return cast(str, self._data["speaker"])
 
     @speaker.setter
     def speaker(self, speaker: str) -> None:
@@ -62,7 +61,7 @@ class VoiceText:
 
     @property
     def emotion(self) -> Optional[str]:
-        return self._data.get("emotion")
+        return cast(Optional[str], self._data.get("emotion"))
 
     @emotion.setter
     def emotion(self, emotion: str) -> None:
@@ -73,7 +72,11 @@ class VoiceText:
 
     @property
     def emotion_level(self) -> int:
-        return self._data["emotion_level"] if "emotion_level" in self._data else 2
+        return (
+            cast(int, self._data["emotion_level"])
+            if "emotion_level" in self._data
+            else 2
+        )
 
     @emotion_level.setter
     def emotion_level(self, level: int) -> None:
@@ -84,7 +87,7 @@ class VoiceText:
 
     @property
     def pitch(self) -> int:
-        return self._data["pitch"] if "pitch" in self._data else 100
+        return cast(int, self._data["pitch"]) if "pitch" in self._data else 100
 
     @pitch.setter
     def pitch(self, pitch: int) -> None:
@@ -96,7 +99,7 @@ class VoiceText:
 
     @property
     def speed(self) -> int:
-        return self._data["speed"] if "speed" in self._data else 100
+        return cast(int, self._data["speed"]) if "speed" in self._data else 100
 
     @speed.setter
     def speed(self, speed: int) -> None:
@@ -108,17 +111,17 @@ class VoiceText:
 
     @property
     def volume(self) -> int:
-        return self._data["volume"] if "volume" in self._data else 100
+        return cast(int, self._data["volume"]) if "volume" in self._data else 100
 
     @volume.setter
-    def volume(self, volume: int):
+    def volume(self, volume: int) -> None:
         if volume < 50:
             volume = 50
         elif 200 < volume:
             volume = 200
         self._data["volume"] = volume
 
-    def to_wave(self, text: str) -> Optional[bytearray]:
+    def to_wave(self, text: str) -> Optional[bytes]:
         """
         Convert text to wave binary.
         :param text: Text to synthesize

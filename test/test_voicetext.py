@@ -5,12 +5,8 @@ from voicetext import VoiceText
 
 
 class VoiceTextTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls._vt = VoiceText("YOUR_API_KEY")
-
     def setUp(self):
-        self._vt.restore_default()
+        self._vt = VoiceText("YOUR_API_KEY")
 
     def test_speak(self):
         self._vt.speak("こんにちは。")
