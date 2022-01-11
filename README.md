@@ -9,7 +9,7 @@ Installation
 ------------
 
 ~~~sh
-$ pip install python-voicetext
+$ pip3 install python-voicetext
 ~~~
 
 or
@@ -17,22 +17,9 @@ or
 ~~~sh
 $ git clone git@github.com:youtalk/python-voicetext.git
 $ cd python-voicetext
-$ python setup.py install
-~~~
-
-Dependencies
-------------
-
-### Ubuntu
-
-~~~sh
-$ sudo apt-get install python-pyaudio
-~~~
-
-### OSX
-
-~~~sh
-$ brew install portaudio
+$ pipenv install
+$ pipenv shell
+$ python3 setup.py install
 ~~~
 
 Usage
@@ -41,11 +28,13 @@ Usage
 ~~~sh
 $ ipython
 >> from voicetext import VoiceText
->> vt = VoiceText('YOUR_API_KEY')
->> vt.speak('こんにちは。')
->> vt.speaker('takeru').emotion('angry').speak('こんばんは。')
->> with open('greet.wav', 'wb') as f:
-.... f.write(vt.to_wave('おはよう。'))
+>> vt = VoiceText("YOUR_API_KEY")
+>> vt.speak("こんにちは。")
+>> vt.speaker = "takeru"
+>> vt.emotion = "angry"
+>> vt..speak("こんばんは。")
+>> with open("greet.wav", "wb") as f:
+.... f.write(vt.to_wave("おはよう。"))
 ~~~
 
 For more information, see also [test/test_voicetext.py](https://github.com/youtalk/python-voicetext/blob/master/test/test_voicetext.py)
